@@ -1,0 +1,19 @@
+.container-1 {
+    width : 70%;
+    margin : 2%
+}
+.main-body {
+    margin : 2%;
+}
+.navLink {
+    display: inline;
+    color: aliceblue;
+    margin: 1%;
+    float: right;
+}
+
+.title {
+    position: absolute;
+    top: 25%;
+    right: 8%;
+}

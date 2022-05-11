@@ -1,0 +1,66 @@
+create database dbproj;
+use dbproj;
+
+CREATE TABLE Users (
+    id varchar(200),
+    PRIMARY KEY(id),
+    Name varchar(300) not NULL,
+    Phone varchar(255) not NULL, 
+    Apartment varchar(255) not NULL, 
+    Email varchar(50) not NULL,
+    Month varchar(10) DEFAULT 0.0,
+    dues decimal(10) DEFAULT 0.0,
+    paid varchar(10) DEFAULT 0.0
+);
+
+Create TABLE Service (
+    id varchar(200),
+    PRIMARY KEY(id),
+    name varchar(300),
+    cost decimal(10)
+)
+
+CREATE TABLE Request (
+    id varchar(200),
+    resident_id varchar(255),
+    service_id varchar(200),
+    PRIMARY KEY (id),
+    FOREIGN KEY (resident_id) REFERENCES Users(id),
+    FOREIGN KEY (service_id) REFERENCES Service(id)
+)
+
+CREATE TABLE RequestConsumed (
+    id varchar(200),
+    user_id varchar(255),
+    service_id varchar(200),
+    request_id varchar(200),
+    consumed_date DATE,
+    consumed_cost decimal(10),
+    PRIMARY KEY(id),
+    FOREIGN KEY (user_id) REFERENCES Users(id),
+    FOREIGN KEY (service_id) REFERENCES Service(id)
+)
+
+
+CREATE trigger DeleteRequest AFTER insert on RequestConsumed for each row delete from Request where id = NEW.request_id;
+
+
+select * from RequestConsumed;
+select * from Users;
+
+SELECT u.Apartment, s.name, s.cost, s.id, u.id from Users u, Service s , Request r where s.id = r.service_id and u.id = r.resident_id;
+
+select u.id, u.Apartment, u.Name, u.Email, u.dues, u.paid, SUM(c.consumed_cost) as total, s.id from Users u, Service s, RequestConsumed c where s.id = c.service_id and u.id = c.user_id and ( select extract(MONTH from consumed_date) = '5') group by u.id;
+
+CREATE trigger DeleteRequest AFTER insert on RequestConsumed for each row delete from Request where id = NEW.request_id;
+Update Users, RequestConsumed set Users.dues = (select SUM(consumed_cost) from RequestConsumed where RequestConsumed.user_id = Users.id and (select extract(MONTH from RequestConsumed.consumed_date)) = 5) where Users.id = RequestConsumed.user_id and Users.Month = 5;
+
+select extract(MONTH from RequestConsumed.consumed_date) = 5 from RequestConsumed;
+
+select SUM(consumed_cost) from RequestConsumed, Users where RequestConsumed.user_id = Users.id;
+
+Update Service set cost = 400 where id = '7b79398f-ca8c-11ec-aecf-dc6396c1250b';
+
+Update Users set Name = 'Omkar', Phone = '1111', Apartment = '65', Email = 'abc', Month = 5, dues = 0, paid = 0 where id = '6786d084-ca8c-11ec-a969-dc6396c1250b';
+
+Update Users set dues = dues - paid where resident_id = '6786d084-ca8c-11ec-a969-dc6396c1250b' and month = 5;
